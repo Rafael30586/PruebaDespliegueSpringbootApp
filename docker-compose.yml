@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  app-prueba-despliegue: #Nombre de la aplicación que está en el application properties
+    build: prueba-despliegue #Carpeta donde está el Dockerfile
+    mem_limit: 512m
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://mysql_negocio:3306/negocio?createDatabaseIfNotExist=true&serverTimezone=UTC #En lugar del locahost se coloca el nombre de la parte del servicio de la base de datos
+      DB_USER_NAME: root
+      DB_PASSWORD: rafael
+    restart: always
+    depends_on:
+      mysql_negocio:
+          condition: service_healthy
+  mysql_negocio:
+    image: mysql:8.0.33 
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rafael
+      MYSQL_PASSWORD: rafael
+      MYSQL_DATABASE: negocio
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
